@@ -1,80 +1,101 @@
 const express = require('express')
+const morgan = require('morgan')
 const app = express()
 
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    date: "2022-01-10T17:30:31.098Z",
-    important: true
+app.use(express.json())
+
+morgan.token('body', (req, res) => JSON.stringify(req.body));
+app.use(morgan(':method :url :status :response-time :body'))
+
+let persons = [
+  { 
+    "id": 1,
+    "name": "Arto Hellas", 
+    "number": "040-123456"
   },
-  {
-    id: 2,
-    content: "Browser can execute only Javascript",
-    date: "2022-01-10T18:39:34.091Z",
-    important: false
+  { 
+    "id": 2,
+    "name": "Ada Lovelace", 
+    "number": "39-44-5323523"
   },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    date: "2022-01-10T19:20:14.298Z",
-    important: true
+  { 
+    "id": 3,
+    "name": "Dan Abramov", 
+    "number": "12-43-234345"
+  },
+  { 
+    "id": 4,
+    "name": "Mary Poppendieck", 
+    "number": "39-23-6423122"
   }
 ]
-
-app.use(express.json())
 
 app.get('/', (req, res) => {
   res.send('<h1>Hello World!</h1>')
 })
 
-const generateId = () => {
-  const maxId = notes.length > 0
-    ? Math.max(...notes.map(n => n.id))
-    : 0
-  return maxId + 1
+app.get('/info', (req, res) => {
+
+  res.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
+})
+
+const generateRandomId = (max) => {
+  return Math.floor(Math.random() * max);
 }
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/persons', (request, response) => {
   const body = request.body
+  const names = persons.map(person => person.name)
+  const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
-  if (!body.content) {
-    return response.status(400).json({ 
-      error: 'content missing' 
+  if (!body.name) {
+    return response.status(400).json({
+      error: 'name missing'
     })
   }
 
-  const note = {
-    content: body.content,
-    important: body.important || false,
-    date: new Date(),
-    id: generateId(),
+  if (!body.number) {
+    return response.status(400).json({ 
+      error: 'number missing' 
+    })
   }
 
-  notes = notes.concat(note)
+  if (nameExsists) {
+    return response.status(400).json({ 
+      error: 'Name must be unique' 
+    })
+  }
 
-  response.json(note)
+  const person = {
+    name: body.name,
+    number: Number(body.number),
+    id: generateRandomId(21000),
+  }
+
+  persons = persons.concat(person)
+
+  response.json(person)
 })
 
-app.get('/api/notes', (req, res) => {
-  res.json(notes)
+app.get('/api/persons', (req, res) => {
+  res.json(persons)
 })
 
-app.delete('/api/notes/:id', (request, response) => {
+app.delete('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  notes = notes.filter(note => note.id !== id)
+  persons = persons.filter(person => person.id !== id)
 
   response.status(204).end()
 })
 
-app.get('/api/notes/:id', (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
   const id = Number(request.params.id)
-  const note = notes.find(note => note.id === id)
+  const person = persons.find(person => person.id === id)
 
-  if (note) {
-    response.json(note)
+  if (person) {
+    response.json(person)
   } else {
-    response.status(404).end()
+    response.status(400).json({error: 'Person does not exsist'})
   }
 })
 
