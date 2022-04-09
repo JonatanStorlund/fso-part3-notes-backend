@@ -1,1 +1,1 @@
-### https://jonttes-phonebook.herokuapp.com/api/persons
+### https://jonttes-phonebook.herokuapp.com/
