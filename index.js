@@ -43,13 +43,9 @@ const generateRandomId = (max) => {
 }
 
 app.post('/api/persons', (request, response) => {
-  console.log(request, 'request')
-  console.log(request.body, 'request body')
-  console.log(response, 'response')
   const body = request.body
   const names = persons.map(person => person.name)
-  const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
-
+  // const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
   if (!body.name) {
     return response.status(400).json({
@@ -63,11 +59,11 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  if (nameExsists) {
-    return response.status(400).json({ 
-      error: 'Name must be unique' 
-    })
-  }
+  // if (nameExsists) {
+  //   return response.status(400).json({ 
+  //     error: 'Name must be unique' 
+  //   })
+  // }
 
   const person = {
     name: body.name,
