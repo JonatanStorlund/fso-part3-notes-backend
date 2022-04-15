@@ -34,8 +34,6 @@ let persons = [
 ]
 
 app.get('/info', (req, res) => {
-  console.log('halåo info')
-
   res.send(`Phonebook has info for ${persons.length} people </br> ${new Date()}`)
 })
 
@@ -48,7 +46,9 @@ app.post('/api/persons', (request, response) => {
   const names = persons.map(person => person.name)
   // const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
-  console.log('halåo')
+  console.log(request, 'req')
+  console.log(request.body, 'req body')
+  console.log(response, 'res')
   if (!body.name) {
     return response.status(400).json({
       error: 'name missing'
