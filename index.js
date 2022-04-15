@@ -47,6 +47,8 @@ app.post('/api/persons', (request, response) => {
   const names = persons.map(person => person.name)
   const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
+  console.log(body, 'body')
+
   if (!body.name) {
     return response.status(400).json({
       error: 'name missing'
