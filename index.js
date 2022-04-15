@@ -1,8 +1,13 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 
 const app = express()
+
+// create application/json parser
+const jsonParser = bodyParser.json()
+
 
 app.use(cors())
 app.use(express.static('build'))
@@ -41,10 +46,10 @@ const generateRandomId = (max) => {
   return Math.floor(Math.random() * max);
 }
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons',jsonParser, (request, response) => {
   const body = request.body
   const names = persons.map(person => person.name)
-  // const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
+  const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
   console.log(request.body, 'req body')
   if (!body.name) {
@@ -59,11 +64,11 @@ app.post('/api/persons', (request, response) => {
     })
   }
 
-  // if (nameExsists) {
-  //   return response.status(400).json({ 
-  //     error: 'Name must be unique' 
-  //   })
-  // }
+  if (nameExsists) {
+    return response.status(400).json({ 
+      error: 'Name must be unique' 
+    })
+  }
 
   const person = {
     name: body.name,
