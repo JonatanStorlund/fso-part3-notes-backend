@@ -43,11 +43,13 @@ const generateRandomId = (max) => {
 }
 
 app.post('/api/persons', (request, response) => {
+  console.log(request, 'request')
+  console.log(request.body, 'request body')
+  console.log(response, 'response')
   const body = request.body
   const names = persons.map(person => person.name)
   const nameExsists = names.includes(body.name) ? names.includes(body.name) : ''
 
-  console.log(body, 'body')
 
   if (!body.name) {
     return response.status(400).json({
