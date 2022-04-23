@@ -5,8 +5,21 @@ const url = `mongodb+srv://fullstackopen:${mongodbPassword}@cluster0.ioqmd.mongo
 mongoose.connect(url)
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: Number,
+  name: {
+    type: String,
+    minLength: 3,
+    required: true,
+  },
+  number: {
+    type: String,
+    validate: {
+      validator: function(v) {
+        return (/\d{2,3}-\d{5,}/).test(v);
+      },
+      message: 'is not a valid phone number!'
+    },
+    required: true
+  },
 })
 
 personSchema.set('toJSON', {

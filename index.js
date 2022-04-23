@@ -1,15 +1,13 @@
 require('dotenv').config()
 const express = require('express')
-const bodyParser = require('body-parser')
 const morgan = require('morgan')
 const cors = require('cors')
 const app = express()
 app.use(cors())
 app.use(express.static('build'))
+app.use(express.json())
 const Person = require('./models/person')
 
-// create application/json parser
-const jsonParser = bodyParser.json()
 
 morgan.token('body', (req, res) => JSON.stringify(req.body));
 app.use(morgan(':method :url :status :response-time :body'))
@@ -24,30 +22,28 @@ const generateRandomId = (max) => {
   return Math.floor(Math.random() * max);
 }
 
-app.post('/api/persons',jsonParser, (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body
 
   if (!body.name) {
-    return response.status(400).json({
-      error: 'name missing'
-    })
+    return response.status(400).send('name missing')
   }
 
   if (!body.number) {
-    return response.status(400).json({
-      error: 'number missing' 
-    })
+    return response.status(400).send('number missing')
   }
 
   const person = new Person({
     name: body.name,
-    number: Number(body.number),
+    number: body.number,
     id: generateRandomId(21000),
   })
   
-  person.save().then(savedPerson => {
-    response.json(savedPerson)
-  })
+  person.save()
+    .then(savedPerson => {
+      response.json(savedPerson)
+    })
+    .catch((error) => next(error))
 })
 
 app.get('/api/persons', (req, res) => {
@@ -73,15 +69,15 @@ app.get('/api/persons/:id', (request, response, next) => {
       response.status(404).end()
     }
   })
-  .catch(error => next(error))
+  .catch(error => snext(error))
 })
 
-app.put('/api/persons/:id',jsonParser, (request, response, next) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
 
   const person = {
     name: body.name,
-    number: Number(body.number),
+    number: body.number,
   }
 
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
@@ -98,11 +94,11 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error)
-
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
-  } 
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).send(error.message)
+  }
 
   next(error)
 }
