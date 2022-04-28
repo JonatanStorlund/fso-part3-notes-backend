@@ -9,17 +9,18 @@ app.use(express.json())
 const Person = require('./models/person')
 
 
-morgan.token('body', (req, res) => JSON.stringify(req.body));
+morgan.token('body', (req) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :response-time :body'))
 
 app.get('/info', (req, res) => {
+  console.log(req)
   Person.find({}).then(persons => {
     res.send(`Phonebook has ${persons.length} info for people </br> ${new Date()}`)
   })
 })
 
 const generateRandomId = (max) => {
-  return Math.floor(Math.random() * max);
+  return Math.floor(Math.random() * max)
 }
 
 app.post('/api/persons', (request, response, next) => {
@@ -38,7 +39,7 @@ app.post('/api/persons', (request, response, next) => {
     number: body.number,
     id: generateRandomId(21000),
   })
-  
+
   person.save()
     .then(savedPerson => {
       response.json(savedPerson)
@@ -54,7 +55,7 @@ app.get('/api/persons', (req, res) => {
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
+    .then(() => {
       response.status(204).end()
     })
     .catch(error => next(error))
@@ -62,14 +63,14 @@ app.delete('/api/persons/:id', (request, response, next) => {
 
 app.get('/api/persons/:id', (request, response, next) => {
   Person.findById(request.params.id)
-  .then(person => {
-    if (person) {
-      response.json(person)
-    } else {
-      response.status(404).end()
-    }
-  })
-  .catch(error => snext(error))
+    .then(person => {
+      if (person) {
+        response.json(person)
+      } else {
+        response.status(404).end()
+      }
+    })
+    .catch(error => next(error))
 })
 
 app.put('/api/persons/:id', (request, response, next) => {
