@@ -7,7 +7,8 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "npx eslint ."
+    "lint": "npx eslint .",
+    "build:phonebook": "rm -rf ./build/ && cd ../fullstack-open/part2/phonebook/ && npm run build && mv build ~/privat/fso-part3-notes-backend",
   },
   "author": "",
   "license": "ISC",
